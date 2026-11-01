@@ -2,12 +2,14 @@ from datetime import datetime
 
 from flask import flash, g, redirect, url_for
 from flask_appbuilder import ModelView
+from flask_appbuilder.actions import action
 from flask_appbuilder.fieldwidgets import DateTimePickerWidget
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from wtforms import DateTimeField
 from wtforms.validators import Optional
 
 from . import appbuilder
+from .ai.asistente_ai import IAError, generar_descripcion
 from .extensions import db
 from .models import Categoria, Cliente, DetalleVenta, Producto, Proveedor, Venta
 
@@ -106,6 +108,35 @@ class ProductoView(ModelView):
         if item.detalles:
             raise Exception("No se puede eliminar: el producto tiene ventas "
                             "registradas. Desactívalo en su lugar.")
+
+    @action("generar_desc", "Generar descripción con IA",
+            "¿Generar la descripción con IA? Se reemplazará la descripción actual.",
+            "fa-magic", multiple=True, single=True)
+    def generar_desc(self, items):
+        if not isinstance(items, list):      # desde la ficha llega un solo producto
+            items = [items]
+        if len(items) > 10:
+            flash("Selecciona máximo 10 productos a la vez.", "warning")
+            return redirect(self.get_redirect())
+
+        generados = 0
+        for p in items:
+            if not p.especificaciones or not p.especificaciones.strip():
+                flash(f"'{p.nombre}': primero escribe sus especificaciones técnicas.",
+                "warning")
+                continue
+            try:
+                p.descripcion = generar_descripcion(
+                    p.nombre, str(p.categoria), p.especificaciones)
+                self.datamodel.edit(p)
+                generados += 1
+            except IAError as e:
+                flash(f"'{p.nombre}': {e}", "danger")
+                break                        # si falla la IA, no seguir intentando
+        if generados:
+            flash(f"Descripción generada para {generados} producto(s).", "success")
+        self.update_redirect()
+        return redirect(self.get_redirect())
 
 
 class DetalleVentaInline(ModelView):
