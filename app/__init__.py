@@ -9,6 +9,7 @@ def create_app() -> Flask:
     db.init_app(app)
     with app.app_context():
         appbuilder.init_app(app, db.session)
+        from . import models
     return app
 
 
