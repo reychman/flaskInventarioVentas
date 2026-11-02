@@ -7,6 +7,9 @@ PERMISOS_VENDEDOR = [
     # Menús visibles
     ("menu_access", "Catálogo"), ("menu_access", "Productos"),
     ("menu_access", "Ventas"), ("menu_access", "Clientes"),
+    # Reportes: el vendedor solo ve el inventario crítico
+    ("menu_access", "Reportes"), ("menu_access", "Inventario crítico"),
+    ("can_inventario_critico", "ReportesView"),
     # Productos: solo consultar (sin crear, editar, eliminar ni IA)
     ("can_list", "ProductoView"), ("can_show", "ProductoView"),
     # Clientes: consultar, crear y editar
