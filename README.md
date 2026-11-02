@@ -22,3 +22,22 @@ En Catálogo → Productos, la acción **Generar descripción con IA** redacta l
 - Inicio de sesión obligatorio en todas las vistas; sin registro público de usuarios.
 - Rol **Admin**: acceso completo. Rol **Vendedor**: consulta productos, gestiona clientes y registra ventas; no puede modificar el catálogo, eliminar ventas ni usar la IA.
 - Los roles se crean con `python crear_roles.py`. Sesión con expiración de 30 minutos y protección CSRF.
+
+
+## Reportes
+
+- **Ventas mensuales** (gráfico de líneas): total vendido por mes, con filtros por fechas y cliente.
+- **Productos más vendidos** (gráfico de barras): top 5 por unidades, con filtros por fechas y categoría.
+- **Inventario crítico** (listado): productos activos con stock menor o igual al umbral, con filtros por umbral, categoría y proveedor.
+
+El panel de inicio resume ventas del mes, productos activos, productos críticos y clientes.
+
+## Instalación
+
+1. Crear la base de datos `inventario_ventas` en MySQL (Laragon).
+2. `py -3.14 -m venv venv` y `venv\Scripts\activate.bat`
+3. `python -m pip install -r requirements.txt`
+4. `python init_db.py`
+5. `flask --app run fab create-admin`
+6. `python crear_roles.py`
+7. `python run.py`
