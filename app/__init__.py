@@ -11,6 +11,7 @@ def create_app() -> Flask:
         appbuilder.init_app(app, db.session)
         from . import models
         from . import views
+        from . import reportes
     return app
 
 

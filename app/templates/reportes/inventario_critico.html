@@ -1,0 +1,46 @@
+{% extends "appbuilder/base.html" %}
+
+{% block content %}
+<h2>Inventario crítico</h2>
+
+<form method="get" class="form-inline well">
+    <label>Umbral de stock</label>
+    <input type="number" min="0" name="umbral" value="{{ f_umbral if f_umbral is not none else '' }}"
+            placeholder="stock mínimo de cada producto" class="form-control" style="width:230px">
+    <label>Categoría</label>
+    <select name="categoria" class="form-control">
+    <option value="">Todas</option>
+    {% for c in categorias %}<option value="{{ c.id }}" {{ 'selected' if f_categoria == c.id }}>{{ c.nombre }}</option>{% endfor %}
+    </select>
+    <label>Proveedor</label>
+    <select name="proveedor" class="form-control">
+    <option value="">Todos</option>
+    {% for p in proveedores %}<option value="{{ p.id }}" {{ 'selected' if f_proveedor == p.id }}>{{ p.nombre }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a href="/reportes/inventario_critico/" class="btn btn-default">Limpiar</a>
+</form>
+
+<p class="text-muted">
+    {% if f_umbral is not none %}Productos activos con stock menor o igual a <strong>{{ f_umbral }}</strong>.
+    { % else %}Productos activos con stock menor o igual a su propio stock mínimo.{% endif %}
+</p>
+
+{% if productos %}
+<p><strong>{{ productos|length }}</strong> producto(s) en estado crítico.</p>
+<table class="table table-bordered table-striped">
+    <thead><tr><th>Código</th><th>Producto</th><th>Categoría</th><th>Proveedor</th>
+    <th class="text-right">Stock</th><th class="text-right">Mínimo</th><th class="text-right">Faltante</th></tr></thead>
+    <tbody>{% for p in productos %}
+    <tr class="{{ 'danger' if p.stock == 0 else 'warning' }}">
+        <td>{{ p.codigo }}</td><td>{{ p.nombre }}</td><td>{{ p.categoria }}</td><td>{{ p.proveedor }}</td>
+        <td class="text-right"><strong>{{ p.stock }}</strong></td>
+        <td class="text-right">{{ p.stock_minimo }}</td>
+        <td class="text-right">{{ [ (f_umbral if f_umbral is not none else p.stock_minimo) - p.stock, 0 ] | max }}</td>
+    </tr>
+    {% endfor %}</tbody>
+</table>
+{% else %}
+<div class="alert alert-success">No hay productos en estado crítico con estos filtros.</div>
+{% endif %}
+{% endblock %}
